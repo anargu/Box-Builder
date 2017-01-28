@@ -2,6 +2,8 @@
 var scene, camera, renderer
 var box, matBox, geomBox 
 var stats
+var control
+var projector, vector
 
 function createStats() {
 	var stats = new Stats()
@@ -14,7 +16,22 @@ function createStats() {
 	return stats
 }
 
+function addControls(controlObject) {
+	// body...
+	var gui = new dat.GUI()
+	gui.add(controlObject, 'Rotation Speed', -0.1, 0.1)
+	gui.add(controlObject, 'Scale', 0.01, 2)
+}
+
 function init () {
+
+	control = new function () {
+		this.rotationSpeed = 0.005
+		this.scale = 1
+	}
+
+	addControls(control)
+
 	scene = new THREE.Scene()
 	camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 10 )
 	camera.position.z = 3;
@@ -34,12 +51,32 @@ function init () {
 	scene.add( box )
 
 	document.body.appendChild( renderer.domElement )
+
+	document.addEventListener('mousedown', onDocumentMouseDown, false)
+
+	var raycaster = new THREE.Raycaster(
+			camera.position,
+			vector.sub(camera.position).normalize()
+		)
+	var intersects = raycaster.intersectObjects( [sphere, cylinder, cube] )
 }
 
+function onDocumentMouseDown(event) {
+	// body...
+	projector = new THREE.Projector()
+	vector = new THREE.Vector3(	
+									(event.clientX / window.innerWidth) * 2 -1,
+									-(event.clientY / window.innerHeight) * 2 +1,
+									0.5 
+							)
+	projector.unprojectVector(vector, camera)
+
+}
 
 function animate() {
 	requestAnimationFrame(animate)
-	box.rotation.x += 0.01
+	// box.rotation.x += 0.01
+	box.rotation.x += control.rotationSpeed
 	box.rotation.y += 0.01
 	box.rotation.z += 0.01
 

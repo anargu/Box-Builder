@@ -4,6 +4,11 @@ var box, matBox, geomBox
 var stats
 var control
 var projector, vector
+var raycaster
+var mouse
+var newCube
+var cubesGroup = []
+var light
 
 function createStats() {
 	var stats = new Stats()
@@ -17,10 +22,51 @@ function createStats() {
 }
 
 function addControls(controlObject) {
-	// body...
+
 	var gui = new dat.GUI()
-	gui.add(controlObject, 'Rotation Speed', -0.1, 0.1)
-	gui.add(controlObject, 'Scale', 0.01, 2)
+	gui.add(controlObject, 'rotationSpeed', -0.1, 0.1)
+}
+
+
+
+function onDocumentClick(event) {
+
+	event.preventDefault();
+
+	mouse.x = (event.clientX / window.innerWidth) * 2 -1
+	mouse.y = -(event.clientY / window.innerHeight) * 2 +1
+
+	detectObjects()
+}
+
+function detectObjects() {
+
+	raycaster.setFromCamera( mouse ,camera)
+	var intersects = raycaster.intersectObjects( cubesGroup )
+
+	if (intersects.length > 0) {
+
+		var intersectedObject = intersects[0]
+
+		console.log(intersectedObject.object.position.x, 
+					intersectedObject.object.position.y, 
+					intersectedObject.object.position.z )
+
+		console.log(intersectedObject.object)
+
+		createNewBox(intersectedObject)		 
+	}
+}
+
+function createNewBox(intersect) {
+
+	cube = new THREE.Mesh(geomBox, matBox)
+
+	cube.position.copy(intersect.point).add( intersect.face.normal )
+	cube.position.divideScalar(50).floor().multiplyScalar(50).addScalar(25)
+
+	scene.add(cube)
+	cubesGroup.push(cube)
 }
 
 function init () {
@@ -32,57 +78,66 @@ function init () {
 
 	addControls(control)
 
+	raycaster = new THREE.Raycaster()
+	mouse = new THREE.Vector2()
+
 	scene = new THREE.Scene()
-	camera = new THREE.PerspectiveCamera( 75, window.innerWidth / window.innerHeight, 0.1, 10 )
-	camera.position.z = 3;
+
+	camera = new THREE.OrthographicCamera( window.innerWidth / - 2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / - 2, -1000, 2000 );
+	camera.position.x = 200;
+	camera.position.y = 100;
+	camera.position.z = 200;
+	camera.lookAt( scene.position );
 
 	stats = createStats()
 	document.body.appendChild( stats.domElement )
 	
 	renderer = new THREE.WebGLRenderer()
 	renderer.setSize( window.innerWidth, window.innerHeight)
-	// renderer.setClearColor(0x00ff67, 1.0);
+	renderer.setClearColor(0xffffff, 1.0);
+
 	
-	geomBox = new THREE.BoxGeometry(1, 1, 1)
-	// matBox = new THREE.MeshBasicMaterial( {color: 0x00ff00})
-	matBox =  new THREE.MeshNormalMaterial()
+	geomBox = new THREE.BoxGeometry(50, 50, 50)
+
+	matBox =  new THREE.MeshBasicMaterial( { color: 0xFFE100, shininess: 40, shading: THREE.FlatShading } )
 
 	box = new THREE.Mesh(geomBox, matBox)
+	box.position.z = 0
+	box.position.x = 0
+	box.position.y = 0
+	// box.geometry.elementsNeedUpdate = true
 	scene.add( box )
+	cubesGroup.push(box)
 
 	document.body.appendChild( renderer.domElement )
 
-	document.addEventListener('mousedown', onDocumentMouseDown, false)
+	document.addEventListener('click', onDocumentClick, false)
 
-	var raycaster = new THREE.Raycaster(
-			camera.position,
-			vector.sub(camera.position).normalize()
-		)
-	var intersects = raycaster.intersectObjects( [sphere, cylinder, cube] )
+	light = new THREE.DirectionalLight( 0xffffff, 1 );
+	light.position.set(80,80,80)
+	scene.add(light)
 }
 
-function onDocumentMouseDown(event) {
-	// body...
-	projector = new THREE.Projector()
-	vector = new THREE.Vector3(	
-									(event.clientX / window.innerWidth) * 2 -1,
-									-(event.clientY / window.innerHeight) * 2 +1,
-									0.5 
-							)
-	projector.unprojectVector(vector, camera)
-
-}
 
 function animate() {
-	requestAnimationFrame(animate)
-	// box.rotation.x += 0.01
-	box.rotation.x += control.rotationSpeed
-	box.rotation.y += 0.01
-	box.rotation.z += 0.01
+
+  //   for (var i = scene.children.length - 1; i >= 0; i--) {
+
+		// scene.children[i].rotation.x += 0.01
+		// scene.children[i].rotation.y += 0.01
+  //   }	
 
 	renderer.render(scene, camera)
 	stats.update()
+	requestAnimationFrame(animate)
+
+
+	// console.log("ElementsNeedUpdate :" + box.geometry.elementsNeedUpdate);
+
+
+
 }
+
 
 init()
 animate()

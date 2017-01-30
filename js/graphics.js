@@ -129,7 +129,7 @@ function init () {
 	document.body.appendChild( renderer.domElement )
 
 	document.addEventListener('click', onDocumentClick, false)
-	document.addEventListener('touchstart', onDocumentTouchStart, false)
+	// document.addEventListener('touchstart', onDocumentTouchStart, false)
 
 	var light = new THREE.PointLight( 0xff0000 );
 	light.position.set(80,80,80)

@@ -122,7 +122,14 @@ function init () {
 	box.position.z = 0
 	box.position.x = 0
 	box.position.y = 0
-	// box.geometry.elementsNeedUpdate = true
+
+	var baseGeometry = new THREE.PlaneGeometry( 1000, 1000, 32)
+	var baseMaterial = new THREE.MeshBasicMaterial( {color: 0x1377B5, opacity: 0.6, transparent: true , side: THREE.DoubleSide } )
+	var base = new THREE.Mesh(baseGeometry, baseMaterial)
+	base.position.y = -25
+	base.rotation.x = Math.PI/2
+	scene.add(base) 
+
 	scene.add( box )
 	cubesGroup.push(box)
 

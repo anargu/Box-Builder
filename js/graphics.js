@@ -8,7 +8,7 @@ var raycaster
 var mouse
 var newCube
 var cubesGroup = []
-var light
+
 
 function createStats() {
 	var stats = new Stats()
@@ -48,11 +48,11 @@ function detectObjects() {
 
 		var intersectedObject = intersects[0]
 
-		console.log(intersectedObject.object.position.x, 
-					intersectedObject.object.position.y, 
-					intersectedObject.object.position.z )
+		// console.log(intersectedObject.object.position.x, 
+		// 			intersectedObject.object.position.y, 
+		// 			intersectedObject.object.position.z )
 
-		console.log(intersectedObject.object)
+		console.log(intersectedObject)
 
 		createNewBox(intersectedObject)		 
 	}
@@ -62,8 +62,14 @@ function createNewBox(intersect) {
 
 	cube = new THREE.Mesh(geomBox, matBox)
 
-	cube.position.copy(intersect.point).add( intersect.face.normal )
-	cube.position.divideScalar(50).floor().multiplyScalar(50).addScalar(25)
+	originalPosition = intersect.object.position
+
+	cube.position.x = originalPosition.x + intersect.face.normal.x * 50
+	cube.position.y = originalPosition.y + intersect.face.normal.y * 50
+	cube.position.z = originalPosition.z + intersect.face.normal.z * 50
+
+	// cube.position.copy(intersect.point).add( intersect.face.normal )
+	// cube.position.divideScalar(50).floor().multiplyScalar(50).addScalar(25)
 
 	scene.add(cube)
 	cubesGroup.push(cube)
@@ -98,8 +104,7 @@ function init () {
 
 	
 	geomBox = new THREE.BoxGeometry(50, 50, 50)
-
-	matBox =  new THREE.MeshBasicMaterial( { color: 0xFFE100, shininess: 40, shading: THREE.FlatShading } )
+	matBox =  new THREE.MeshLambertMaterial( { color: 0xffffff, } )
 
 	box = new THREE.Mesh(geomBox, matBox)
 	box.position.z = 0
@@ -113,8 +118,12 @@ function init () {
 
 	document.addEventListener('click', onDocumentClick, false)
 
-	light = new THREE.DirectionalLight( 0xffffff, 1 );
+	var light = new THREE.PointLight( 0xff0000 );
 	light.position.set(80,80,80)
+	scene.add(light)
+
+	var light = new THREE.PointLight( 0xff0000 );
+	light.position.set(-40, -20, -30)
 	scene.add(light)
 }
 

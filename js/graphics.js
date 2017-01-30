@@ -36,16 +36,18 @@ function onDocumentClick(event) {
 	mouse.x = (event.clientX / window.innerWidth) * 2 -1
 	mouse.y = -(event.clientY / window.innerHeight) * 2 +1
 
+	console.log("click")
 	detectObjects()
 }
 
 function onDocumentTouchStart(event) {
 
-	event.preventDefault();
+	// event.preventDefault();
 
-	mouse.x = (event.targetTouches[0].pageX / window.innerWidth) * 2 -1
-	mouse.y = -(event.targetTouches[0].pageY / window.innerHeight) * 2 +1
+	mouse.x = (event.changedTouches[0].pageX / window.innerWidth) * 2 -1
+	mouse.y = -(event.changedTouches[0].pageY / window.innerHeight) * 2 +1
 
+	console.log("touchstart")
 	detectObjects()
 }
 

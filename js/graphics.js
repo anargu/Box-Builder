@@ -39,6 +39,16 @@ function onDocumentClick(event) {
 	detectObjects()
 }
 
+function onDocumentTouchStart(event) {
+
+	event.preventDefault();
+
+	mouse.x = (event.targetTouches[0].pageX / window.innerWidth) * 2 -1
+	mouse.y = -(event.targetTouches[0].pageY / window.innerHeight) * 2 +1
+
+	detectObjects()
+}
+
 function detectObjects() {
 
 	raycaster.setFromCamera( mouse ,camera)
@@ -117,7 +127,7 @@ function init () {
 	document.body.appendChild( renderer.domElement )
 
 	document.addEventListener('click', onDocumentClick, false)
-	document.addEventListener('touchstart', onDocumentClick, false)
+	document.addEventListener('touchstart', onDocumentTouchStart, false)
 
 	var light = new THREE.PointLight( 0xff0000 );
 	light.position.set(80,80,80)
